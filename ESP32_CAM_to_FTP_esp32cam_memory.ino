@@ -8,18 +8,15 @@
 #include "soc/rtc_cntl_reg.h"
 #include "FS.h"
 
-/*//定義WiFi網路訊息
-const char* ssid = "SK";  //網路名 須為2.4G
-const char* password = "silkworm"; //網路密碼*/
-
-const char* ssid = "LA8F9";  //網路名 須為2.4G
-const char* password = "La84160206"; //網路密碼
+//定義WiFi網路訊息
+const char* ssid = "網路名稱";  //網路名 須為2.4G
+const char* password = "網路密碼"; //網路密碼
 
 
 //FTP伺服器訊息
-const char* ftpServer = "118.163.114.237";
-const char* ftpUser = "meijiali";
-const char* ftpPassword = "meijiali2024";
+const char* ftpServer = "FTP伺服器IP";
+const char* ftpUser = "FTP使用者";
+const char* ftpPassword = "FTP密碼";
 
 //======================================== CAMERA_MODEL_AI_THINKER GPIO.
 #define PWDN_GPIO_NUM     32
@@ -44,7 +41,7 @@ const char* ftpPassword = "meijiali2024";
 // LED Flash PIN (GPIO 4)
 #define FLASH_LED_PIN 4
 //String getDateTime(); 
-// 创建 FTP 客户端对象
+// 創建 FTP 客户端對象
 FTPClient ftp(SPIFFS);
 
 int i;
@@ -218,7 +215,7 @@ void captureAndUploadImage(){
   FTPClient::ServerInfo serverInfo(ftpUser, ftpPassword, ftpServer);
   ftp.begin(serverInfo);
 
-  // 将图像数据写入本地文件
+  // 将图像數據寫入本地文件
   File file = SPIFFS.open("/image.jpg", FILE_WRITE);
   if (!file) {
     Serial.println("Failed to create local file");
