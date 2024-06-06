@@ -1,8 +1,8 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <FTPClient.h>
-#include "SPIFFS.h" // 包含 SPIFFS 文件系统的头文件
-#include <ctime> // 包含 time 函数的头文件
+#include "SPIFFS.h" // 包含 SPIFFS 文件系统
+#include <ctime> 
 #include <WiFiClientSecure.h>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
@@ -47,8 +47,6 @@ FTPClient ftp(SPIFFS);
 int i;
 int count=0;
 void setup() {
-  // put your setup code here, to run once:
-  // Disable brownout detector.
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
   
   Serial.begin(115200);
@@ -64,7 +62,6 @@ void setup() {
 
   pinMode(FLASH_LED_PIN, OUTPUT);
   
-  // Setting the ESP32 WiFi to station mode.
   Serial.println();
   Serial.println("Setting the ESP32 WiFi to station mode.");
   WiFi.mode(WIFI_STA);
@@ -74,11 +71,7 @@ void setup() {
   Serial.print("Connecting to : ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
-  
-  // The process timeout of connecting ESP32 CAM with WiFi Hotspot / WiFi Router is 20 seconds.
-  // If within 20 seconds the ESP32 CAM has not been successfully connected to WiFi, the ESP32 CAM will restart.
-  // I made this condition because on my ESP32-CAM, there are times when it seems like it can't connect to WiFi, so it needs to be restarted to be able to connect to WiFi.
-  int connecting_process_timed_out = 20; //--> 20 = 20 seconds.
+  int connecting_process_timed_out = 20;
   connecting_process_timed_out = connecting_process_timed_out * 2;
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -132,7 +125,6 @@ void setup() {
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
   
-  // init with high specs to pre-allocate larger buffers
   if(psramFound()){
     config.frame_size = FRAMESIZE_SXGA;
     config.jpeg_quality = 10;  //0-63 lower number means higher quality
@@ -215,7 +207,7 @@ void captureAndUploadImage(){
   FTPClient::ServerInfo serverInfo(ftpUser, ftpPassword, ftpServer);
   ftp.begin(serverInfo);
 
-  // 将图像數據寫入本地文件
+  // 將圖像數據寫入本地文件
   File file = SPIFFS.open("/image.jpg", FILE_WRITE);
   if (!file) {
     Serial.println("Failed to create local file");
@@ -245,7 +237,7 @@ void captureAndUploadImage(){
     Serial.println("Run again.");
     localFile.close();
     SPIFFS.remove("/image.jpg");
-    delay(100); // 等待一段时间确保文件已写入
+    delay(100); // 等待一段時間確保文件已寫入
     esp_camera_fb_return(fb);
     Serial.print("Free heap after releasing framebuffer: ");
     Serial.println(ESP.getFreeHeap());
@@ -254,22 +246,22 @@ void captureAndUploadImage(){
     return;
   }
 
-  // 检查文件是否为空
+  // 检查文件是否為空
   if (bytesWritten == 0) {
     Serial.println("Local file size is 0, trying again...");
     captureAndUploadImage(); // Retry capturing and uploading
     return;
   }
   
-  // 获取当前时间作为文件名
+  // 使用流水號為文件名
   String fileName = "/home/meijiali/Pictures/" + String(count) + ".jpg";
   count++;
 
-  // 传输文件
+  // 傳輸文件
   FTPClient::TransferType direction = FTPClient::FTP_PUT; // 上传文件
   FTPClient::Status status = ftp.transfer("/image.jpg", fileName, direction);
   
-  // 检查传输状态
+  // 检查傳輸狀態
   if (status.result == FTPClient::OK) {
     Serial.println("File transfer successful");
   } else {
@@ -279,12 +271,12 @@ void captureAndUploadImage(){
   }
 }
 String getDateTime() {
-    // 获取当前时间
+    // 獲取當前時間
     time_t now = time(nullptr);
     struct tm *timeinfo;
     timeinfo = localtime(&now);
 
-    // 格式化时间字符串
+    // 格式化時間字符串
     char buffer[20];
     strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
 
@@ -304,6 +296,5 @@ void checkFileSystemSpace() {
 
   if (totalBytes - usedBytes < 100000) {
     Serial.println("Insufficient file system space");
-    // Handle insufficient space here, such as deleting old files or increasing file system size.
   }
 }
